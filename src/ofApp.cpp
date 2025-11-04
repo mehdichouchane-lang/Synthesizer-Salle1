@@ -12,12 +12,13 @@ void ofApp::setup(){
 	phaseAdderTarget 	= 0.0f;
 	volume				= 0.1f;
 	bNoise 				= false;
-
 	lAudio.assign(bufferSize, 0.0);
 	rAudio.assign(bufferSize, 0.0);
 	
 	soundStream.printDeviceList();
-
+	for (int i = 0; i < 10; i++) {
+		flags[i] = false;
+	}
 	ofSoundStreamSettings settings;
 
 	// if you want to set the device id to be different than the default:
@@ -141,15 +142,70 @@ void ofApp::draw(){
 		reportString += "noise";	
 	}
 	ofDrawBitmapString(reportString, 32, 579);
-	for (int i = 0; i < 3; i++) {
+	for (int i = 0; i < 12; i++) {
 		ofSetLineWidth(1);
+		if (flags[i]) {
+			ofSetColor(255, 0, 0);
+		} else {
+			ofSetColor(255);
+		}
+		
+		ofFill();
 		ofDrawRectangle(30+i*(5+10), 650, 10, 50);
 	}
 }
-
-
+float ofApp::keyFreq(int key) {
+	std::unordered_map<char, int> qwerty_map = {
+		{ 'q', 1 }, { 'w', 2 }, { 'e', 3 }, { 'r', 4 }, { 't', 5 }, { 'y', 6 },
+		{ 'u', 7 }, { 'i', 8 }, { 'o', 9 }, { 'p', 10 }, { 'a', 11 }, { 's', 12 }
+	};
+	int n = 0; 
+	n = qwerty_map[key]; 
+	return 400 * std::pow(2.0, n / 12.0);
+}
+void ofApp::setFlags(int key, bool flags[],bool val) {
+	std::unordered_map<char, int> qwerty_map = {
+		{ 'q', 1 }, { 'w', 2 }, { 'e', 3 }, { 'r', 4 }, { 't', 5 }, { 'y', 6 },
+		{ 'u', 7 }, { 'i', 8 }, { 'o', 9 }, { 'p', 10 }, { 'a', 11 }, { 's', 12 }
+	};
+	auto it = qwerty_map.find(key);
+	if (it != qwerty_map.end()) {
+		int index = it->second; // index from map (1-based)
+		flags[index - 1] = val; // set to false, adjusting to 0-based array index
+	}
+}
 //--------------------------------------------------------------
 void ofApp::keyPressed  (int key){
+	std::unordered_map<char, int> qwerty_map = {
+		{ 'q', 1 }, { 'w', 2 }, { 'e', 3 }, { 'r', 4 }, { 't', 5 }, { 'y', 6 },
+		{ 'u', 7 }, { 'i', 8 }, { 'o', 9 }, { 'p', 10 }, { 'a', 11 }, { 's', 12 }
+	};
+	
+	char charKey = static_cast<char>(key);
+	if (qwerty_map.find(charKey) != qwerty_map.end()) {
+		pan = 0.5;
+		targetFrequency = keyFreq(key);
+		phaseAdderTarget = (targetFrequency / (float)sampleRate) * glm::two_pi<float>();
+		setFlags(key, flags, true);
+	}
+	/*
+	if (key == 'q') {
+		pan = 0.5;
+		targetFrequency = keyFreq(key);
+		phaseAdderTarget = (targetFrequency / (float)sampleRate) * glm::two_pi<float>();
+		setFlags(key,flags,true);
+	}
+	if (key == 'w') {
+		pan = 0.5;
+		targetFrequency = keyFreq(key);
+		phaseAdderTarget = (targetFrequency / (float)sampleRate) * glm::two_pi<float>();
+		setFlags(key, flags, true);
+	}
+	*/
+
+
+
+
 	if (key == '-' || key == '_' ){
 		volume -= 0.05;
 		volume = std::max(volume, 0.f);
@@ -157,7 +213,7 @@ void ofApp::keyPressed  (int key){
 		volume += 0.05;
 		volume = std::min(volume, 1.f);
 	}
-	
+	/*
 	if( key == 's' ){
 		soundStream.start();
 	}
@@ -165,12 +221,14 @@ void ofApp::keyPressed  (int key){
 	if( key == 'e' ){
 		soundStream.stop();
 	}
+	*/
 	
 }
 
 //--------------------------------------------------------------
 void ofApp::keyReleased  (int key){
-
+	setFlags(key, flags, false);
+	phaseAdderTarget = 0.;
 }
 
 //--------------------------------------------------------------
@@ -194,10 +252,12 @@ void ofApp::mousePressed(int x, int y, int button){
 	if ((x < 40 && x > 30) && (y < 700 && y >= 650)) {
 		bNoise = true;
 		pan = 0;
+		flags[0] = true;
 	}
 	else if ((x < 55 && x > 45) && (y < 700 && y >= 650)) {
 		bNoise = true;
 		pan = 1;
+		flags[1] = true;
 	}
 	else if ((x < 70 && x > 60) && (y < 700 && y >= 650)) {
 		bNoise = false;
@@ -206,6 +266,7 @@ void ofApp::mousePressed(int x, int y, int button){
 		float heightPct = ((height - 550) / height);
 		targetFrequency = 2000.0f * heightPct;
 		phaseAdderTarget = (targetFrequency / (float)sampleRate) * glm::two_pi<float>();
+		flags[2] = true;
 	}
 	//bNoise = true;
 }
@@ -214,6 +275,9 @@ void ofApp::mousePressed(int x, int y, int button){
 //--------------------------------------------------------------
 void ofApp::mouseReleased(int x, int y, int button){
 	bNoise = false;
+	for (int i = 0; i < 10; i++) {
+		flags[i] = false;
+	}
 }
 
 //--------------------------------------------------------------

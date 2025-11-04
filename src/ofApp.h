@@ -23,15 +23,15 @@ class ofApp : public ofBaseApp{
 		void gotMessage(ofMessage msg);
 		
 		void audioOut(ofSoundBuffer & buffer);
-		
-		
+		float keyFreq(int key);
+		void setFlags(int key, bool flags[],bool val);
 		ofSoundStream soundStream;
 
 		float 	pan;
 		int		sampleRate;
 		bool 	bNoise;
 		float 	volume;
-
+		bool flags[12];
 		vector <float> lAudio;
 		vector <float> rAudio;
 		

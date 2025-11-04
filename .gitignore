@@ -3,6 +3,15 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
+# Personal
+addons.make
+audioOutputExample.png
+audioOutputExample.sln
+audioOutputExample.vcxproj
+audioOutputExample.vcxproj.filters
+audioOutputExample.vcxproj.user
+config.make
+icon.rc
 # User-specific files
 *.rsuser
 *.suo
