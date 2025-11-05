@@ -29,9 +29,13 @@ class ofApp : public ofBaseApp{
 
 		float 	pan;
 		int		sampleRate;
+		int widthBlack = 20;
+		int heightBlack = 180;
+		int widthWhite = 300;
+		int heightWhite = 45;
 		bool 	bNoise;
 		float 	volume;
-		bool flags[12];
+		bool flags[20];
 		vector <float> lAudio;
 		vector <float> rAudio;
 		

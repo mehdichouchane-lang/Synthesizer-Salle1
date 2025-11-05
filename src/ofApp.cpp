@@ -91,7 +91,7 @@ void ofApp::draw(){
 		ofTranslate(32, 150, 0);
 			
 		ofSetColor(225);
-		ofDrawBitmapString("Left Channel", 4, 18);
+		ofDrawBitmapString("Temporal Domain", 4, 18);
 		
 		ofSetLineWidth(1);	
 		ofDrawRectangle(0, 0, 900, 200);
@@ -115,7 +115,7 @@ void ofApp::draw(){
 		ofTranslate(32, 350, 0);
 			
 		ofSetColor(225);
-		ofDrawBitmapString("Right Channel", 4, 18);
+		ofDrawBitmapString("Frequency Domain", 4, 18);
 		
 		ofSetLineWidth(1);	
 		ofDrawRectangle(0, 0, 900, 200);
@@ -123,12 +123,12 @@ void ofApp::draw(){
 		ofSetColor(245, 58, 135);
 		ofSetLineWidth(3);
 					
-			ofBeginShape();
-			for (unsigned int i = 0; i < rAudio.size(); i++){
-				float x =  ofMap(i, 0, rAudio.size(), 0, 900, true);
-				ofVertex(x, 100 -rAudio[i]*180.0f);
-			}
-			ofEndShape(false);
+			// ofBeginShape();
+			// for (unsigned int i = 0; i < rAudio.size(); i++){
+			// 	float x =  ofMap(i, 0, rAudio.size(), 0, 900, true);
+			// 	ofVertex(x, 100 -rAudio[i]*180.0f);
+			// }
+			// ofEndShape(false);
 			
 		ofPopMatrix();
 	ofPopStyle();
@@ -142,22 +142,43 @@ void ofApp::draw(){
 		reportString += "noise";	
 	}
 	ofDrawBitmapString(reportString, 32, 579);
-	for (int i = 0; i < 12; i++) {
+
+	for (int i = 0; i < 11; i++) {
 		ofSetLineWidth(1);
 		if (flags[i]) {
-			ofSetColor(255, 0, 0);
+			ofSetColor(128, 206, 255);
 		} else {
 			ofSetColor(255);
 		}
 		
 		ofFill();
-		ofDrawRectangle(30+i*(5+10), 650, 10, 50);
+
+		ofDrawRectangle(30+i*(5+45), 650, 45, 300);
+
+	}
+	int j=0;
+	for (int i = 0; i < 10; i++) {
+		std::set<int> mySet {0, 1, 2, 4, 5, 7, 8, 9};
+		if(mySet.count(i) != 0){
+      		ofSetLineWidth(1);
+			if (flags[11+j]) {
+				ofSetColor(128, 206, 255);
+			} else {
+				ofSetColor(0);
+			}
+			
+			ofFill();
+			ofDrawRectangle(67.5+i*(45+5), 650, 20, 180);
+			j++;
+		}
 	}
 }
 float ofApp::keyFreq(int key) {
 	std::unordered_map<char, int> qwerty_map = {
 		{ 'q', 1 }, { 'w', 2 }, { 'e', 3 }, { 'r', 4 }, { 't', 5 }, { 'y', 6 },
-		{ 'u', 7 }, { 'i', 8 }, { 'o', 9 }, { 'p', 10 }, { 'a', 11 }, { 's', 12 }
+		{ 'u', 7 }, { 'i', 8 }, { 'o', 9 }, { 'p', 10 }, { 'a', 11 }, { 's', 12 },
+		{ 'd', 13 }, { 'f', 14 }, { 'g', 15 }, { 'h', 16 }, { 'j', 17 }, { 'k', 18 },
+		{ 'l', 19 }
 	};
 	int n = 0; 
 	n = qwerty_map[key]; 
@@ -166,7 +187,9 @@ float ofApp::keyFreq(int key) {
 void ofApp::setFlags(int key, bool flags[],bool val) {
 	std::unordered_map<char, int> qwerty_map = {
 		{ 'q', 1 }, { 'w', 2 }, { 'e', 3 }, { 'r', 4 }, { 't', 5 }, { 'y', 6 },
-		{ 'u', 7 }, { 'i', 8 }, { 'o', 9 }, { 'p', 10 }, { 'a', 11 }, { 's', 12 }
+		{ 'u', 7 }, { 'i', 8 }, { 'o', 9 }, { 'p', 10 }, { 'a', 11 }, { 's', 12 },
+		{ 'd', 13 }, { 'f', 14 }, { 'g', 15 }, { 'h', 16 }, { 'j', 17 }, { 'k', 18 },
+		{ 'l', 19 }
 	};
 	auto it = qwerty_map.find(key);
 	if (it != qwerty_map.end()) {
@@ -178,7 +201,9 @@ void ofApp::setFlags(int key, bool flags[],bool val) {
 void ofApp::keyPressed  (int key){
 	std::unordered_map<char, int> qwerty_map = {
 		{ 'q', 1 }, { 'w', 2 }, { 'e', 3 }, { 'r', 4 }, { 't', 5 }, { 'y', 6 },
-		{ 'u', 7 }, { 'i', 8 }, { 'o', 9 }, { 'p', 10 }, { 'a', 11 }, { 's', 12 }
+		{ 'u', 7 }, { 'i', 8 }, { 'o', 9 }, { 'p', 10 }, { 'a', 11 }, { 's', 12 },
+		{ 'd', 13 }, { 'f', 14 }, { 'g', 15 }, { 'h', 16 }, { 'j', 17 }, { 'k', 18 },
+		{ 'l', 19 }
 	};
 	
 	char charKey = static_cast<char>(key);
@@ -233,18 +258,18 @@ void ofApp::keyReleased  (int key){
 
 //--------------------------------------------------------------
 void ofApp::mouseMoved(int x, int y ){
-	int width = ofGetWidth();
-	pan = (float)x / (float)width;
-	float height = (float)ofGetHeight();
-	float heightPct = ((height-y) / height);
-	targetFrequency = 2000.0f * heightPct;
-	phaseAdderTarget = (targetFrequency / (float) sampleRate) * glm::two_pi<float>();
+	// int width = ofGetWidth();
+	// pan = (float)x / (float)width;
+	// float height = (float)ofGetHeight();
+	// float heightPct = ((height-y) / height);
+	// targetFrequency = 2000.0f * heightPct;
+	// phaseAdderTarget = (targetFrequency / (float) sampleRate) * glm::two_pi<float>();
 }
 
 //--------------------------------------------------------------
 void ofApp::mouseDragged(int x, int y, int button){
-	int width = ofGetWidth();
-	pan = (float)x / (float)width;
+	// int width = ofGetWidth();
+	// pan = (float)x / (float)width;
 }
 
 //--------------------------------------------------------------
