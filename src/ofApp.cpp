@@ -75,6 +75,14 @@ void ofApp::setup(){
 void ofApp::update(){
 
 }
+//--------------------------------------------------------------
+void ofApp::setupGui(){
+	parameters.setName("parameters");
+	parameters.add(radius.set("radius",0,1,7));
+	// parameters.add(color.set("color",100,ofColor(0,0),255));
+	gui.setup(parameters);
+	ofSetBackgroundColor(0);
+}
 
 //--------------------------------------------------------------
 void ofApp::draw(){
@@ -143,7 +151,7 @@ void ofApp::draw(){
 	}
 	ofDrawBitmapString(reportString, 32, 579);
 
-	for (int i = 0; i < 11; i++) {
+	for (int i = 0; i < 7; i++) {
 		ofSetLineWidth(1);
 		if (flags[i]) {
 			ofSetColor(128, 206, 255);
@@ -157,8 +165,8 @@ void ofApp::draw(){
 
 	}
 	int j=0;
-	for (int i = 0; i < 10; i++) {
-		std::set<int> mySet {0, 1, 2, 4, 5, 7, 8, 9};
+	for (int i = 0; i < 6; i++) {
+		std::set<int> mySet {0, 1, 3, 4, 5};
 		if(mySet.count(i) != 0){
       		ofSetLineWidth(1);
 			if (flags[11+j]) {
@@ -173,6 +181,12 @@ void ofApp::draw(){
 		}
 	}
 }
+
+//--------------------------------------------------------------
+void ofApp::drawGui(ofEventArgs & args){
+	gui.draw();
+}
+//--------------------------------------------------------------
 float ofApp::keyFreq(int key) {
 	std::unordered_map<char, int> qwerty_map = {
 		{ 'q', 1 }, { 'w', 2 }, { 'e', 3 }, { 'r', 4 }, { 't', 5 }, { 'y', 6 },
@@ -184,6 +198,7 @@ float ofApp::keyFreq(int key) {
 	n = qwerty_map[key]; 
 	return 400 * std::pow(2.0, n / 12.0);
 }
+//--------------------------------------------------------------
 void ofApp::setFlags(int key, bool flags[],bool val) {
 	std::unordered_map<char, int> qwerty_map = {
 		{ 'q', 1 }, { 'w', 2 }, { 'e', 3 }, { 'r', 4 }, { 't', 5 }, { 'y', 6 },

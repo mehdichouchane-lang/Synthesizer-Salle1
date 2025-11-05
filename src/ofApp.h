@@ -1,14 +1,17 @@
 #pragma once
 
 #include "ofMain.h"
+#include "ofxGui.h"
 
 class ofApp : public ofBaseApp{
 
 	public:
 
 		void setup();
+		void setupGui();
 		void update();
 		void draw();
+		void drawGui(ofEventArgs & args);
 
 		void keyPressed  (int key);
 		void keyReleased(int key);
@@ -35,7 +38,7 @@ class ofApp : public ofBaseApp{
 		int heightWhite = 45;
 		bool 	bNoise;
 		float 	volume;
-		bool flags[20];
+		bool flags[12];
 		vector <float> lAudio;
 		vector <float> rAudio;
 		
@@ -44,4 +47,9 @@ class ofApp : public ofBaseApp{
 		float 	phase;
 		float 	phaseAdder;
 		float 	phaseAdderTarget;
+
+		ofParameterGroup parameters;
+		ofParameter<int> octave;
+		// ofParameter<ofColor> color;
+		ofxPanel gui;
 };

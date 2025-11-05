@@ -1,19 +1,33 @@
 #include "ofMain.h"
 #include "ofApp.h"
+#include "ofAppGLFWWindow.h"
+
 
 //========================================================================
 int main( ){
 
 	//Use ofGLFWWindowSettings for more options like multi-monitor fullscreen
 	ofGLWindowSettings settings;
-	settings.setSize(1100, 1100);
-	settings.windowMode = OF_WINDOW; //can also be OF_FULLSCREEN
+	settings.setSize(600, 600);
+	settings.setPosition(glm::vec2(300,0));
+	settings.resizable = true;
+	auto mainWindow = ofCreateWindow(settings);
 
-	auto window = ofCreateWindow(settings);
-	// auto window2 = ofCreateWindow(settings);
+	settings.setSize(300, 300);
+	settings.setPosition(glm::vec2(0,0));
+	settings.resizable = false;
+	// uncomment next line to share main's OpenGL resources with gui
+	//settings.shareContextWith = mainWindow;
+	auto guiWindow = ofCreateWindow(settings);
+	guiWindow->setVerticalSync(false);
 
-	ofRunApp(window, std::make_shared<ofApp>());
+	auto mainApp = std::make_shared<ofApp>();
+	mainApp->setupGui();
+	ofAddListener(guiWindow->events().draw,mainApp.get(),&ofApp::drawGui);
+
+	ofRunApp(mainWindow, mainApp);
 	// ofRunApp(window2, std::make_shared<ofApp>());
 	ofRunMainLoop();
 
 }
+
