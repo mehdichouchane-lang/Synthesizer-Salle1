@@ -7,13 +7,13 @@
 int main( ){
 
 	//Use ofGLFWWindowSettings for more options like multi-monitor fullscreen
-	ofGLWindowSettings settings;
-	settings.setSize(600, 600);
-	settings.setPosition(glm::vec2(300,0));
+	ofGLFWWindowSettings settings;
+	settings.setSize(1000, 900);
+	settings.setPosition(glm::vec2(305,0));
 	settings.resizable = true;
 	auto mainWindow = ofCreateWindow(settings);
 
-	settings.setSize(300, 300);
+	settings.setSize(300, 100);
 	settings.setPosition(glm::vec2(0,0));
 	settings.resizable = false;
 	// uncomment next line to share main's OpenGL resources with gui

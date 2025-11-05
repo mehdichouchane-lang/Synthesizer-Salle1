@@ -77,8 +77,9 @@ void ofApp::update(){
 }
 //--------------------------------------------------------------
 void ofApp::setupGui(){
+	ofBackground(34, 34, 34);
 	parameters.setName("parameters");
-	parameters.add(radius.set("radius",0,1,7));
+	parameters.add(octave.set("octave",1,1,7));
 	// parameters.add(color.set("color",100,ofColor(0,0),255));
 	gui.setup(parameters);
 	ofSetBackgroundColor(0);
@@ -88,15 +89,15 @@ void ofApp::setupGui(){
 void ofApp::draw(){
 
 	ofSetColor(225);
-	ofDrawBitmapString("AUDIO OUTPUT EXAMPLE", 32, 32);
-	ofDrawBitmapString("press 's' to unpause the audio\npress 'e' to pause the audio", 31, 92);
+	// ofDrawBitmapString("AUDIO OUTPUT EXAMPLE", 32, 32);
+	// ofDrawBitmapString("press 's' to unpause the audio\npress 'e' to pause the audio", 31, 92);
 	
 	ofNoFill();
 	// draw keys 
 	// draw the left channel:
 	ofPushStyle();
 		ofPushMatrix();
-		ofTranslate(32, 150, 0);
+		ofTranslate(32, 50, 0);
 			
 		ofSetColor(225);
 		ofDrawBitmapString("Temporal Domain", 4, 18);
@@ -120,7 +121,7 @@ void ofApp::draw(){
 	// draw the right channel:
 	ofPushStyle();
 		ofPushMatrix();
-		ofTranslate(32, 350, 0);
+		ofTranslate(32, 250, 0);
 			
 		ofSetColor(225);
 		ofDrawBitmapString("Frequency Domain", 4, 18);
@@ -143,13 +144,13 @@ void ofApp::draw(){
 	
 		
 	ofSetColor(225);
-	string reportString = "volume: ("+ofToString(volume, 2)+") modify with -/+ keys\npan: ("+ofToString(pan, 2)+") modify with mouse x\nsynthesis: ";
+	string reportString = "volume: ("+ofToString(volume, 2)+") modify with -/+ keys\npan: ("+ofToString(pan, 2)+")\nsynthesis: ";
 	if( !bNoise ){
-		reportString += "sine wave (" + ofToString(targetFrequency, 2) + "hz) modify with mouse y";
+		reportString += "sine wave (" + ofToString(targetFrequency, 2) + " hz)";
 	}else{
 		reportString += "noise";	
 	}
-	ofDrawBitmapString(reportString, 32, 579);
+	ofDrawBitmapString(reportString, 32, 500);
 
 	for (int i = 0; i < 7; i++) {
 		ofSetLineWidth(1);
@@ -161,7 +162,7 @@ void ofApp::draw(){
 		
 		ofFill();
 
-		ofDrawRectangle(30+i*(5+45), 650, 45, 300);
+		ofDrawRectangle(30+i*(5+45), 550, 45, 300);
 
 	}
 	int j=0;
@@ -176,7 +177,7 @@ void ofApp::draw(){
 			}
 			
 			ofFill();
-			ofDrawRectangle(67.5+i*(45+5), 650, 20, 180);
+			ofDrawRectangle(62.5+i*(45+5), 550, 30, 180);
 			j++;
 		}
 	}
@@ -184,15 +185,14 @@ void ofApp::draw(){
 
 //--------------------------------------------------------------
 void ofApp::drawGui(ofEventArgs & args){
+	ofSetColor(115);
 	gui.draw();
 }
 //--------------------------------------------------------------
 float ofApp::keyFreq(int key) {
 	std::unordered_map<char, int> qwerty_map = {
 		{ 'q', 1 }, { 'w', 2 }, { 'e', 3 }, { 'r', 4 }, { 't', 5 }, { 'y', 6 },
-		{ 'u', 7 }, { 'i', 8 }, { 'o', 9 }, { 'p', 10 }, { 'a', 11 }, { 's', 12 },
-		{ 'd', 13 }, { 'f', 14 }, { 'g', 15 }, { 'h', 16 }, { 'j', 17 }, { 'k', 18 },
-		{ 'l', 19 }
+		{ 'u', 7 }, { 'i', 8 }, { 'o', 9 }, { 'p', 10 }, { 'a', 11 }, { 's', 12 }
 	};
 	int n = 0; 
 	n = qwerty_map[key]; 
@@ -202,9 +202,7 @@ float ofApp::keyFreq(int key) {
 void ofApp::setFlags(int key, bool flags[],bool val) {
 	std::unordered_map<char, int> qwerty_map = {
 		{ 'q', 1 }, { 'w', 2 }, { 'e', 3 }, { 'r', 4 }, { 't', 5 }, { 'y', 6 },
-		{ 'u', 7 }, { 'i', 8 }, { 'o', 9 }, { 'p', 10 }, { 'a', 11 }, { 's', 12 },
-		{ 'd', 13 }, { 'f', 14 }, { 'g', 15 }, { 'h', 16 }, { 'j', 17 }, { 'k', 18 },
-		{ 'l', 19 }
+		{ 'u', 7 }, { 'i', 8 }, { 'o', 9 }, { 'p', 10 }, { 'a', 11 }, { 's', 12 }
 	};
 	auto it = qwerty_map.find(key);
 	if (it != qwerty_map.end()) {
@@ -216,9 +214,7 @@ void ofApp::setFlags(int key, bool flags[],bool val) {
 void ofApp::keyPressed  (int key){
 	std::unordered_map<char, int> qwerty_map = {
 		{ 'q', 1 }, { 'w', 2 }, { 'e', 3 }, { 'r', 4 }, { 't', 5 }, { 'y', 6 },
-		{ 'u', 7 }, { 'i', 8 }, { 'o', 9 }, { 'p', 10 }, { 'a', 11 }, { 's', 12 },
-		{ 'd', 13 }, { 'f', 14 }, { 'g', 15 }, { 'h', 16 }, { 'j', 17 }, { 'k', 18 },
-		{ 'l', 19 }
+		{ 'u', 7 }, { 'i', 8 }, { 'o', 9 }, { 'p', 10 }, { 'a', 11 }, { 's', 12 }
 	};
 	
 	char charKey = static_cast<char>(key);
