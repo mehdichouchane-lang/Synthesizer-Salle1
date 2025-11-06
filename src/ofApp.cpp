@@ -10,11 +10,10 @@ void ofApp::setup(){
 	phase 				= 0;
 	phaseAdder 			= 0.0f;
 	phaseAdderTarget 	= 0.0f;
-	volume				= 0.1f;
 	bNoise 				= false;
 	lAudio.assign(bufferSize, 0.0);
 	rAudio.assign(bufferSize, 0.0);
-	baseFreq = 220; 
+	baseFreq = 440; 
 	soundStream.printDeviceList();
 	widthWhiteKey = 60;
 	keySpace = 3;
@@ -117,11 +116,39 @@ void ofApp::setup(){
 	// use ofFmodSetBuffersize(bufferSize) to set the buffersize in fmodx prior to loading a file.
 }
 
-
+void ofApp::setupGui() {
+	ofBackground(34, 34, 34);
+	parameters.setName("parameters");
+	parameters.add(octave.set("octave", 4, 1, 7));
+	parameters.add(LaFreq.set("La Frequency", 440, 430, 450));
+	// parameters.add(color.set("color",100,ofColor(0,0),255));
+	parameters.add(volumeAudio.set("volume", 2, 0, 30));
+	QwertyToggle.setup("Qwerty", false);
+	QwertyToggle.addListener(this, &ofApp::onQwertyToggled);
+	gui.setup(parameters);
+	gui.add(&QwertyToggle);
+	ofSetBackgroundColor(0);
+}
+void ofApp::onQwertyToggled(bool & val) {
+	qwertyActive = val;
+	counterQwerty++;
+	if (qwertyActive) {
+		current_map = french_map;
+		ofLogNotice() << "Qwerty mode ON";
+	} else {
+		current_map = qwerty_map;
+		ofLogNotice() << "Qwerty mode OFF";
+	}
+}
+void ofApp::drawGui(ofEventArgs & args) {
+	ofSetColor(115);
+	gui.draw();
+}
 //--------------------------------------------------------------
 void ofApp::update(){
 
 }
+
 
 //--------------------------------------------------------------
 void ofApp::draw(){
@@ -189,18 +216,7 @@ void ofApp::draw(){
 		reportString += "noise";	
 	}
 	ofDrawBitmapString(reportString, 32, 579);
-	/*
-	int whiteCounter = 0;
-	if (i == 1 || i == 3 || i == 6 || i == 8 || i == 10) {
-		ofSetLineWidth(1);
-		if (flags[i]) {
-			ofSetColor(255, 0, 0);
-		} else {
-			ofSetColor(0, 255, 0);
-		}
-		ofFill();
-		ofDrawRectangle(30 + whiteCounter * (5 + 10), 650, 5, 25);
-	}*/
+
 	
 	// Draw the white keys
 	//ofTrueTypeFont font;
@@ -225,7 +241,6 @@ void ofApp::draw(){
 			float textX = x + widthWhiteKey/ 2 - 4; // adjust -4 for approx center text horizontally
 			float textY = yStart + heightWhiteKey - 15; // slightly above bottom to be visible
 			ofDrawBitmapString(std::string(1, whiteKeyLabels[i]), textX, textY);
-			//font.drawString(std::string(1, whiteKeyLabels[i]), textX, textY);
 		}
 	// Draw the black keys
 		std::string blackKeyLabels;
@@ -254,58 +269,17 @@ void ofApp::draw(){
 			ofDrawBitmapString(std::string(1, blackKeyLabels[i]), textX, textY);
 		}
 		ofFill();
-		// qwerty/azerty button
-		
-		ofFill();
-		ofDrawRectangle(qwertyButtonStartX, qwertyButtonStartY, 100, 100);
-	for (int i = 0; i < 5; i++) {
-		ofSetLineWidth(1);
-		if (flagsFreq[i]) {
-			ofSetColor(220);
-			ofFill();
-		} else {
-
-			ofSetColor(255);
-			ofFill();
-		}
-
-		
-		ofDrawRectangle(700, 600 + i * (20), 50, 20);
-		ofSetColor(10, 10, 10); 
-		ofDrawBitmapString(ofToString(220 + i * 110), 708, 596 + (i+1) * (20));
-	}
 }
-float ofApp::keyFreq(int key, int baseFreq) {
+float ofApp::keyFreq(int key, int LaFreq) {
 	char charKey = static_cast<char>(key);
 	auto it = current_map.find(charKey);
 	if (it != current_map.end()) {
 		int n = static_cast<int>(it->second);
-		return baseFreq * std::pow(2.0, n / 12.0);
+		return LaFreq * std::pow(2.0, (n-9+(octave-4)*12) / 12.0);
 	}
 	return 0.0f; // or some default
 }
-/*
-float ofApp::keyFreq(int key,int baseFreq) {
-	std::unordered_map<char, int> qwerty_map = {
-		{ 'q', 1 }, { 'w', 2 }, { 'e', 3 }, { 'r', 4 }, { 't', 5 }, { 'y', 6 },
-		{ 'u', 7 }, { 'i', 8 }, { 'o', 9 }, { 'p', 10 }, { 'a', 11 }, { 's', 12 }
-	};
-	int n = 0; 
-	n = qwerty_map[key]; 
-	return baseFreq * std::pow(2.0, n / 12.0);
-}
-*/
-/* void ofApp::setFlags(int key, bool flags[], bool val) {
-	 std::unordered_map<char, int> qwerty_map = {
-		{ 'q', 1 }, { 'w', 2 }, { 'e', 3 }, { 'r', 4 }, { 't', 5 }, { 'y', 6 },
-		{ 'u', 7 }, { 'i', 8 }, { 'o', 9 }, { 'p', 10 }, { 'a', 11 }, { 's', 12 }
-	};
-	auto it = qwerty_map.find(key);
-	if (it != qwerty_map.end()) {
-		int index = it->second; // index from map (1-based)
-		flags[index - 1] = val; // set to false, adjusting to 0-based array index
-	}
-}*/
+
 void ofApp::setFlags(int key, bool flags[], bool val) {
 	char charKey = static_cast<char>(key);
 	auto it = current_map.find(charKey);
@@ -320,67 +294,18 @@ void ofApp::setFlags(int key, bool flags[], bool val) {
 
 //--------------------------------------------------------------
 void ofApp::keyPressed  (int key){
-	/* std::unordered_map<char, int> qwerty_map = {
-		{ 'q', 1 }, { 'w', 2 }, { 'e', 3 }, { 'r', 4 }, { 't', 5 }, { 'y', 6 },
-		{ 'u', 7 }, { 'i', 8 }, { 'o', 9 }, { 'p', 10 }, { 'a', 11 }, { 's', 12 }
-	};
-	*/
+	
 	char charKey = static_cast<char>(key);
 	if (current_map.find(charKey) != current_map.end()) {
 		pan = 0.5;
-		targetFrequency = keyFreq(key,baseFreq);
+		targetFrequency = keyFreq(key,LaFreq);
 		phaseAdderTarget = (targetFrequency / (float)sampleRate) * glm::two_pi<float>();
 		setFlags(key, flags, true);
 	}
-	/*
-	if (key == 'q') {
-		pan = 0.5;
-		targetFrequency = keyFreq(key);
-		phaseAdderTarget = (targetFrequency / (float)sampleRate) * glm::two_pi<float>();
-		setFlags(key,flags,true);
-	}
-	if (key == 'w') {
-		pan = 0.5;
-		targetFrequency = keyFreq(key);
-		phaseAdderTarget = (targetFrequency / (float)sampleRate) * glm::two_pi<float>();
-		setFlags(key, flags, true);
-	}
-	*/
-	if (key == '-' || key == '_') {
-		volume -= 0.05;
-		volume = std::max(volume, 0.f);
-	} else if (key == '+' || key == '=') {
-		volume += 0.05;
-		volume = std::min(volume, 1.f);
-	}
-
-
-
-	
 }
 
 
-//--------------------------------------------------------------
-/*void ofApp::keyPressed  (int key){
-	if (key == '-' || key == '_' ){
-		volume -= 0.05;
-		volume = std::max(volume, 0.f);
-	} else if (key == '+' || key == '=' ){
-		volume += 0.05;
-		volume = std::min(volume, 1.f);
-	}
-	
-	if( key == 's' ){
-		soundStream.start();
-	}
-	
-	if( key == 'e' ){
-		soundStream.stop();
-	}
-	
 
-	
-}*/
 
 //--------------------------------------------------------------
 void ofApp::keyReleased  (int key){
@@ -391,74 +316,20 @@ void ofApp::keyReleased  (int key){
 
 //--------------------------------------------------------------
 void ofApp::mouseMoved(int x, int y ){
-	/*int width = ofGetWidth();
-	pan = (float)x / (float)width;
-	float height = (float)ofGetHeight();
-	float heightPct = ((height-y) / height);
-	targetFrequency = 2000.0f * heightPct;
-	phaseAdderTarget = (targetFrequency / (float) sampleRate) * glm::two_pi<float>();*/ 
+ 
 }
 
 //--------------------------------------------------------------
 void ofApp::mouseDragged(int x, int y, int button){
-	int width = ofGetWidth();
-	pan = (float)x / (float)width;
 }
 
 //--------------------------------------------------------------
 void ofApp::mousePressed(int x, int y, int button){
-	if ((x <= qwertyButtonEndX && x >= qwertyButtonStartX) && (y <= qwertyButtonEndY && y >= qwertyButtonStartY)) {
-		counterQwerty++;
-		if (counterQwerty % 2) {
-			current_map = french_map;
-		} else {
-			current_map = qwerty_map;
-		}
-	}
-	if ((x <= 750 && x >= 700) && (y <= 700 && y >= 600)) {
-		
-			int r = (y-600) % 20;
-		int pos = (y - 600 - r) / 20;
-			for (int i = 0; i < 5; i++) {
-				flagsFreq[i] = false;
-			}
-			flagsFreq[pos] = true;
-			baseFreq = 220 + pos * 110; 
-
-	}
-
-	if ((x < 40 && x > 30) && (y < 700 && y >= 650)) {
-		bNoise = true;
-		pan = 0;
-		flags[0] = true;
-
-	}
-	else if ((x < 55 && x > 45) && (y < 700 && y >= 650)) {
-		bNoise = true;
-		pan = 1;
-		flags[1] = true;
-
-	}
-	else if ((x < 70 && x > 60) && (y < 700 && y >= 650)) {
-		bNoise = false;
-		pan = 0.5;
-		float height = (float)ofGetHeight();
-		float heightPct = ((height - 550) / height);
-		targetFrequency = 2000.0f * heightPct;
-		phaseAdderTarget = (targetFrequency / (float)sampleRate) * glm::two_pi<float>();
-		flags[2] = true;
-
-	}
-	//bNoise = true;
 }
 
 
 //--------------------------------------------------------------
 void ofApp::mouseReleased(int x, int y, int button){
-	bNoise = false;
-	for (int i = 0; i < 10; i++) {
-		flags[i] = false;
-	}
 
 }
 
@@ -488,20 +359,21 @@ void ofApp::audioOut(ofSoundBuffer & buffer){
 	while (phase > glm::two_pi<float>()){
 		phase -= glm::two_pi<float>();
 	}
-
+	
 	if ( bNoise == true){
 		// ---------------------- noise --------------
+		
 		for (size_t i = 0; i < buffer.getNumFrames(); i++){
-			lAudio[i] = buffer[i*buffer.getNumChannels()    ] = ofRandom(0, 1) * volume * leftScale;
-			rAudio[i] = buffer[i*buffer.getNumChannels() + 1] = ofRandom(0, 1) * volume * rightScale;
+			lAudio[i] = buffer[i * buffer.getNumChannels()] = ofRandom(0, 1) * (0.05 * volumeAudio) * leftScale;
+			rAudio[i] = buffer[i * buffer.getNumChannels() + 1] = ofRandom(0, 1) * (0.05 * volumeAudio) * rightScale;
 		}
 	} else {
 		phaseAdder = phaseAdderTarget; //0.95f * phaseAdder + 0.05f * phaseAdderTarget;
 		for (size_t i = 0; i < buffer.getNumFrames(); i++){
 			phase += phaseAdder;
 			float sample = sin(phase);
-			lAudio[i] = buffer[i*buffer.getNumChannels()    ] = sample * volume * leftScale;
-			rAudio[i] = buffer[i*buffer.getNumChannels() + 1] = sample * volume * rightScale;
+			lAudio[i] = buffer[i * buffer.getNumChannels()] = sample * (0.05 * volumeAudio) * leftScale;
+			rAudio[i] = buffer[i * buffer.getNumChannels() + 1] = sample * (0.05 * volumeAudio) * rightScale;
 		}
 	}
 
