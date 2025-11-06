@@ -39,17 +39,17 @@ class ofApp : public ofBaseApp{
 		int baseFreq;
 		enum class Key {
 			C, // C natural
+			CSharp, // C# (all sharps after naturals)
 			D,
+			DSharp, // D#
 			E,
 			F,
-			G,
-			A,
-			B,
-			CSharp, // C# (all sharps after naturals)
-			DSharp, // D#
 			FSharp, // F#
+			G,
 			GSharp, // G#
+			A,
 			ASharp, // A#
+			B,
 			KeyCount // Helper to count number of keys
 		};
 		std::unordered_map<char, Key> qwerty_map;

@@ -13,15 +13,14 @@ void ofApp::setup(){
 	bNoise 				= false;
 	lAudio.assign(bufferSize, 0.0);
 	rAudio.assign(bufferSize, 0.0);
-	baseFreq = 440; 
 	soundStream.printDeviceList();
 	widthWhiteKey = 60;
 	keySpace = 3;
 	heightWhiteKey = 200;
 	widthBlackKey = widthWhiteKey / 2;
 	heightBlackKey = heightWhiteKey / 2;
-	xStart = 30;
-	yStart = 650;
+	xStart = 33;
+	yStart = 525;
 	qwertyButtonStartX = xStart + 7 * (keySpace + widthWhiteKey);
 	qwertyButtonStartY = yStart;
 	qwertyButtonEndX = qwertyButtonStartX + widthWhiteKey;
@@ -51,7 +50,7 @@ void ofApp::setup(){
 	};
 	french_map = {
 		{ 'a', Key::C },
-		{ '�', Key::CSharp },
+		{ (char16_t) u'é', Key::CSharp },
 		{ 'z', Key::D },
 		{ '"', Key::DSharp },
 		{ 'e', Key::E },
@@ -60,7 +59,7 @@ void ofApp::setup(){
 		{ 't', Key::G },
 		{ '-', Key::GSharp },
 		{ 'y', Key::A },
-		{ '�', Key::ASharp },
+		{ (char16_t) u'è', Key::ASharp },
 		{ 'u', Key::B }
 	};
 	current_map = qwerty_map;
@@ -117,10 +116,10 @@ void ofApp::setupGui() {
 	ofBackground(34, 34, 34);
 	parameters.setName("parameters");
 	parameters.add(octave.set("octave", 4, 1, 7));
-	parameters.add(LaFreq.set("La Frequency", 440, 430, 450));
+	parameters.add(LaFreq.set("C4 frequency", 440, 430, 450));
 	// parameters.add(color.set("color",100,ofColor(0,0),255));
 	parameters.add(volumeAudio.set("volume", 2, 0, 30));
-	QwertyToggle.setup("Qwerty", false);
+	QwertyToggle.setup("Qwerty", true);
 	QwertyToggle.addListener(this, &ofApp::onQwertyToggled);
 	gui.setup(parameters);
 	gui.add(&QwertyToggle);
@@ -143,6 +142,11 @@ void ofApp::onQwertyToggled(bool & val) {
 //--------------------------------------------------------------
 void ofApp::update(){
 
+}
+
+//--------------------------------------------------------------
+namespace unsigned_types { 
+    typedef std::basic_string<unsigned char> string;
 }
 
 //--------------------------------------------------------------
@@ -206,11 +210,11 @@ void ofApp::draw(){
 	ofSetColor(225);
 	string reportString = "volume: ("+ofToString(volumeAudio, 2)+")\npan: ("+ofToString(pan, 2)+")\nsynthesis: ";
 	if( !bNoise ){
-		reportString += "sine wave (" + ofToString(baseFreq, 2) + " Hz)";
+		reportString += "sine wave (" + ofToString(targetFrequency, 2) + " Hz)";
 	}else{
 		reportString += "noise";	
 	}
-	ofDrawBitmapString(reportString, 32, 579);
+	ofDrawBitmapString(reportString, 32, 475);
 
 	// Draw the white keys
 	//ofTrueTypeFont font;
@@ -221,9 +225,11 @@ void ofApp::draw(){
 	} else {
 		whiteKeyLabels = "qwertyu";
 	}
+	int whiteKeyLocs[] = { 0, 2, 4, 5, 7, 9, 11 };
 	for (int i = 0; i < 7; i++) {	 
 			ofSetLineWidth(1);
-			if (flags[i]) {
+			int flagIdx = whiteKeyLocs[i];
+			if (flags[flagIdx]) {
 				ofSetColor(255, 0, 144);
 			} else {
 				ofSetColor(255);
@@ -236,19 +242,23 @@ void ofApp::draw(){
 			float textY = yStart + heightWhiteKey - 15; // slightly above bottom to be visible
 			ofDrawBitmapString(std::string(1, whiteKeyLabels[i]), textX, textY);
 		}
+
 	// Draw the black keys
 		std::string blackKeyLabels;
 		if (counterQwerty % 2) {
-			blackKeyLabels = "�\"(-�";
+			unsigned char u_array[5] = { (char16_t) u'\xE8', '"', '(', '-', (char16_t) u'è' };
+			blackKeyLabels = std::string(u_array, u_array + sizeof u_array / sizeof u_array[0]);
 		} else {
 			blackKeyLabels = "23567";
 		}
 		
-		int blackKeyOffsets[] = { 0, 1, 3, 4, 5 }; // where black keys are placed
+		int blackKeyOffsets[] = { 1, 3, 6, 8, 10 }; // where black keys are placed
+		int blackKeyOffsets_key[] = { 0, 1, 3, 4, 5 }; // where black keys are placed
 		for (int i = 0; i < 5; ++i) {
-			int keyIdx = blackKeyOffsets[i];
+			int flagIdx = blackKeyOffsets[i];
+			int keyIdx = blackKeyOffsets_key[i];
 			ofSetLineWidth(1);
-			if (flags[7 + i]) { // assuming black key flags start at flags[7]
+			if (flags[flagIdx]) { 
 				ofSetColor(255, 0, 144);
 			} else {
 				ofSetColor(0); // black
@@ -277,7 +287,7 @@ float ofApp::keyFreq(int key, int LaFreq) {
 	auto it = current_map.find(charKey);
 	if (it != current_map.end()) {
 		int n = static_cast<int>(it->second);
-		return LaFreq * std::pow(2.0, (n-9+(octave-4)*12) / 12.0);
+		return LaFreq * std::pow(2.0, (n-49+4+((octave-1)*12)) / 12.0);
 	}
 	return 0.0f; // or some default
 }
