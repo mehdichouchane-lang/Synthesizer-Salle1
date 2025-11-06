@@ -1,0 +1,13 @@
+# Ignore everything by default
+*
+
+# But keep the src folder
+!src/
+!src/**
+
+# Optional: Keep this .gitignore file itself
+!.gitignore
+
+# (Optional) If you have a README or license file you want to keep, uncomment below:
+#!README.md
+#!LICENSE
