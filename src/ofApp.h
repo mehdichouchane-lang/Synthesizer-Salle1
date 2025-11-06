@@ -8,9 +8,9 @@ class ofApp : public ofBaseApp{
 	public:
 
 		void setup();
-		void setupGui();
 		void update();
 		void draw();
+		void setupGui();
 		void drawGui(ofEventArgs & args);
 
 		void keyPressed  (int key);
@@ -26,20 +26,48 @@ class ofApp : public ofBaseApp{
 		void gotMessage(ofMessage msg);
 		
 		void audioOut(ofSoundBuffer & buffer);
-		float keyFreq(int key);
+		float keyFreq(int key, int baseFreq);
 		void setFlags(int key, bool flags[],bool val);
 		ofSoundStream soundStream;
 
 		float 	pan;
 		int		sampleRate;
-		int widthBlack = 20;
-		int heightBlack = 180;
-		int widthWhite = 300;
-		int heightWhite = 45;
 		bool 	bNoise;
 		float 	volume;
 		bool flags[12];
-		vector <float> lAudio;
+		bool flagsFreq[5];
+		int baseFreq;
+		enum class Key {
+			C, // C natural
+			D,
+			E,
+			F,
+			G,
+			A,
+			B,
+			CSharp, // C# (all sharps after naturals)
+			DSharp, // D#
+			FSharp, // F#
+			GSharp, // G#
+			ASharp, // A#
+			KeyCount // Helper to count number of keys
+		};
+		std::unordered_map<char, Key> qwerty_map;
+		std::unordered_map<char, Key> french_map;
+		std::unordered_map<char, Key> current_map;
+		float widthWhiteKey;
+		float keySpace ;
+		float heightWhiteKey;
+		float widthBlackKey;
+		float heightBlackKey ;
+		float xStart;
+		float yStart;
+		float qwertyButtonStartX;
+		float qwertyButtonStartY;
+		float qwertyButtonEndX;
+		float qwertyButtonEndY;
+		int counterQwerty;
+		vector<float> lAudio;
 		vector <float> rAudio;
 		
 		//------------------- for the simple sine wave synthesis
@@ -47,9 +75,13 @@ class ofApp : public ofBaseApp{
 		float 	phase;
 		float 	phaseAdder;
 		float 	phaseAdderTarget;
-
 		ofParameterGroup parameters;
 		ofParameter<int> octave;
+		ofParameter<int> volumeAudio;
+		ofParameter<int> LaFreq;
 		// ofParameter<ofColor> color;
 		ofxPanel gui;
+		ofxToggle QwertyToggle;
+		bool qwertyActive = false;
+		void onQwertyToggled(bool & val);
 };
