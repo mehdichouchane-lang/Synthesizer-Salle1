@@ -101,7 +101,6 @@ void ofApp::setup(){
 	if(!devices.empty()){
 		settings.setOutDevice(devices[0]);
 	}
-	
 	settings.setOutListener(this);
 	settings.sampleRate = sampleRate;
 	settings.numOutputChannels = 2;
@@ -113,6 +112,7 @@ void ofApp::setup(){
 	// use ofFmodSetBuffersize(bufferSize) to set the buffersize in fmodx prior to loading a file.
 }
 
+//--------------------------------------------------------------
 void ofApp::setupGui() {
 	ofBackground(34, 34, 34);
 	parameters.setName("parameters");
@@ -126,6 +126,8 @@ void ofApp::setupGui() {
 	gui.add(&QwertyToggle);
 	ofSetBackgroundColor(0);
 }
+
+//--------------------------------------------------------------
 void ofApp::onQwertyToggled(bool & val) {
 	qwertyActive = val;
 	counterQwerty++;
@@ -137,10 +139,7 @@ void ofApp::onQwertyToggled(bool & val) {
 		ofLogNotice() << "Qwerty mode OFF";
 	}
 }
-void ofApp::drawGui(ofEventArgs & args) {
-	ofSetColor(115);
-	gui.draw();
-}
+
 //--------------------------------------------------------------
 void ofApp::update(){
 
@@ -150,18 +149,18 @@ void ofApp::update(){
 void ofApp::draw(){
 
 	ofSetColor(225);
-	ofDrawBitmapString("AUDIO OUTPUT EXAMPLE", 32, 32);
-	ofDrawBitmapString("press 's' to unpause the audio\npress 'e' to pause the audio", 31, 92);
+	// ofDrawBitmapString("AUDIO OUTPUT EXAMPLE", 32, 32);
+	// ofDrawBitmapString("press 's' to unpause the audio\npress 'e' to pause the audio", 31, 92);
 	
 	ofNoFill();
 	// draw keys 
 	// draw the left channel:
 	ofPushStyle();
 		ofPushMatrix();
-		ofTranslate(32, 150, 0);
+		ofTranslate(32, 50, 0);
 			
 		ofSetColor(225);
-		ofDrawBitmapString("Left Channel", 4, 18);
+		ofDrawBitmapString("Temporal Domain", 4, 18);
 		
 		ofSetLineWidth(1);	
 		ofDrawRectangle(0, 0, 900, 200);
@@ -182,10 +181,10 @@ void ofApp::draw(){
 	// draw the right channel:
 	ofPushStyle();
 		ofPushMatrix();
-		ofTranslate(32, 350, 0);
+		ofTranslate(32, 250, 0);
 			
 		ofSetColor(225);
-		ofDrawBitmapString("Right Channel", 4, 18);
+		ofDrawBitmapString("Frequency Domain", 4, 18);
 		
 		ofSetLineWidth(1);	
 		ofDrawRectangle(0, 0, 900, 200);
@@ -193,21 +192,21 @@ void ofApp::draw(){
 		ofSetColor(245, 58, 135);
 		ofSetLineWidth(3);
 					
-			ofBeginShape();
-			for (unsigned int i = 0; i < rAudio.size(); i++){
-				float x =  ofMap(i, 0, rAudio.size(), 0, 900, true);
-				ofVertex(x, 100 -rAudio[i]*180.0f);
-			}
-			ofEndShape(false);
+			// ofBeginShape();
+			// for (unsigned int i = 0; i < rAudio.size(); i++){
+			// 	float x =  ofMap(i, 0, rAudio.size(), 0, 900, true);
+			// 	ofVertex(x, 100 -rAudio[i]*180.0f);
+			// }
+			// ofEndShape(false);
 			
 		ofPopMatrix();
 	ofPopStyle();
 	
 		
 	ofSetColor(225);
-	string reportString = "volume: ("+ofToString(volume, 2)+") modify with -/+ keys\npan: ("+ofToString(pan, 2)+") modify with mouse x\nsynthesis: ";
+	string reportString = "volume: ("+ofToString(volumeAudio, 2)+")\npan: ("+ofToString(pan, 2)+")\nsynthesis: ";
 	if( !bNoise ){
-		reportString += "sine wave (" + ofToString(baseFreq, 2) + "hz) modify with mouse y";
+		reportString += "sine wave (" + ofToString(baseFreq, 2) + " Hz)";
 	}else{
 		reportString += "noise";	
 	}
@@ -265,6 +264,14 @@ void ofApp::draw(){
 		}
 		ofFill();
 }
+
+//--------------------------------------------------------------
+void ofApp::drawGui(ofEventArgs & args){
+	ofSetColor(115);
+	gui.draw();
+}
+
+//--------------------------------------------------------------
 float ofApp::keyFreq(int key, int LaFreq) {
 	char charKey = static_cast<char>(key);
 	auto it = current_map.find(charKey);
@@ -275,6 +282,7 @@ float ofApp::keyFreq(int key, int LaFreq) {
 	return 0.0f; // or some default
 }
 
+//--------------------------------------------------------------
 void ofApp::setFlags(int key, bool flags[], bool val) {
 	char charKey = static_cast<char>(key);
 	auto it = current_map.find(charKey);
@@ -293,14 +301,11 @@ void ofApp::keyPressed  (int key){
 	char charKey = static_cast<char>(key);
 	if (current_map.find(charKey) != current_map.end()) {
 		pan = 0.5;
-		targetFrequency = keyFreq(key,LaFreq);
+		targetFrequency = keyFreq(key, LaFreq);
 		phaseAdderTarget = (targetFrequency / (float)sampleRate) * glm::two_pi<float>();
 		setFlags(key, flags, true);
 	}
 }
-
-
-
 
 //--------------------------------------------------------------
 void ofApp::keyReleased  (int key){
@@ -315,15 +320,17 @@ void ofApp::mouseMoved(int x, int y ){
 
 //--------------------------------------------------------------
 void ofApp::mouseDragged(int x, int y, int button){
+	
 }
 
 //--------------------------------------------------------------
 void ofApp::mousePressed(int x, int y, int button){
-}
 
+}
 
 //--------------------------------------------------------------
 void ofApp::mouseReleased(int x, int y, int button){
+	
 }
 
 //--------------------------------------------------------------

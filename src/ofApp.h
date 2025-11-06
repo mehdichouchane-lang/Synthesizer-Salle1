@@ -26,7 +26,7 @@ class ofApp : public ofBaseApp{
 		void gotMessage(ofMessage msg);
 		
 		void audioOut(ofSoundBuffer & buffer);
-		float keyFreq(int key,int baseFreq);
+		float keyFreq(int key, int baseFreq);
 		void setFlags(int key, bool flags[],bool val);
 		ofSoundStream soundStream;
 
