@@ -178,9 +178,15 @@ void ofApp::draw(){
 		ofSetLineWidth(3);
 					
 			ofBeginShape();
+		int scaleSound = 1;
 			for (unsigned int i = 0; i < lAudio.size(); i++){
+			if (volumeAudio > 15) {
+				scaleSound = 1.0f + volumeAudio / 20;
+			} else {
+				scaleSound = 1;
+			}
 				float x =  ofMap(i, 0, lAudio.size(), 0, 900, true);
-				ofVertex(x, 100 -lAudio[i]*180.0f);
+				ofVertex(x, 100 -(lAudio[i]*180.0f/scaleSound));
 			}
 			ofEndShape(false);
 			
@@ -200,24 +206,23 @@ void ofApp::draw(){
 
 		ofSetColor(245, 58, 135);
 		ofSetLineWidth(3);
-		int shiftX = 0;
+		
 		// draw the fourier transform
+		int halfSize = fourierSpectrum.size() / 2;
 		if (!fourierSpectrum.empty()) {
 			ofSetColor(0, 255, 0);
 			ofNoFill();
 			ofBeginShape();
-			for (int i = 0; i < fourierSpectrum.size() / 2; i++) {
-				float x = ofMap(i, 0, fourierSpectrum.size() / 2, 0, 900 -shiftX, true);
-				ofVertex(x + shiftX, (140 - fourierSpectrum[i] * 5.0f));
+			float logMin = std::log10(1.0f);
+			float logMax = std::log10((float)halfSize);
+			for (int i = 0; i < halfSize; i++) {
+				float linearX = ofMap(i, 0, halfSize, 0, 900, true);
+				float logX = std::log10(linearX);
+				float x = ofMap(logX, logMin, logMax, 0, 900, true);
+				ofVertex(x, (140 - fourierSpectrum[i] * 10.0f / (volumeAudio + 0.01f)));
 			}
 			ofEndShape(false);
 		}
-			// ofBeginShape();
-			// for (unsigned int i = 0; i < rAudio.size(); i++){
-			// 	float x =  ofMap(i, 0, rAudio.size(), 0, 900, true);
-			// 	ofVertex(x, 100 -rAudio[i]*180.0f);
-			// }
-			// ofEndShape(false);
 			
 		ofPopMatrix();
 	ofPopStyle();
