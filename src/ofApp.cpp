@@ -9,7 +9,8 @@ void ofApp::setup(){
 	sampleRate 			= 44100;
 	phase 				= 0;
 	phaseAdder 			= 0.0f;
-	phaseAdderTarget 	= 0.0f;
+	// phaseAdderTarget 	= 0.0f;
+	// std::vector<float> phaseAdderTarget[10] = {1};
 	bNoise 				= false;
 	lAudio.assign(bufferSize, 0.0);
 	rAudio.assign(bufferSize, 0.0);
@@ -67,7 +68,18 @@ void ofApp::setup(){
 	
 		titleFont.load("Welbut.ttf", 48); // font file + size
 
-
+	mapHarms = {
+		{ '0', harm1 },
+		{ '1', harm2 },
+		{ '2', harm3 },
+		{ '3', harm4 },
+		{ '4', harm5 },
+		{ '5', harm6 },
+		{ '6', harm7 },
+		{ '7', harm8 },
+		{ '8', harm9 },
+		{ '9', harm10 }
+	};
 
 	// if you want to set the device id to be different than the default:
 	//
@@ -117,17 +129,29 @@ void ofApp::setup(){
 //--------------------------------------------------------------
 void ofApp::setupGui() {
 	ofBackground(34, 34, 34);
-	parameters.setName("parameters");
+	parameters.setName("Parameters");
 	parameters.add(octave.set("octave", 4, 1, 7));
 	parameters.add(LaFreq.set("C4 frequency", 440, 430, 450));
 	// parameters.add(color.set("color",100,ofColor(0,0),255));
 	parameters.add(volumeAudio.set("volume", 2, 0, 30));
 	QwertyToggle.setup("Qwerty", false);
 	QwertyToggle.addListener(this, &ofApp::onQwertyToggled);
+	parameters.setName("Harmonic Parameters");
+	parameters.add(harm1.set("First harmonic", 1, 0, 1));
+	parameters.add(harm2.set("Second harmonic", 0, 0, 1));
+	parameters.add(harm3.set("Third harmonic", 0, 0, 1));
+	parameters.add(harm4.set("Fourth harmonic", 0, 0, 1));
+	parameters.add(harm5.set("Fifth harmonic", 0, 0, 1));
+	parameters.add(harm6.set("Sixth harmonic", 0, 0, 1));
+	parameters.add(harm7.set("Seventh harmonic", 0, 0, 1));
+	parameters.add(harm8.set("Eighth harmonic", 0, 0, 1));
+	parameters.add(harm9.set("Nineth harmonic", 0, 0, 1));
+	parameters.add(harm10.set("Tenth harmonic", 0, 0, 1));
 	gui.setup(parameters);
 	gui.add(&QwertyToggle);
 	ofSetBackgroundColor(0);
 }
+
 
 //--------------------------------------------------------------
 void ofApp::onQwertyToggled(bool & val) {
@@ -231,7 +255,7 @@ void ofApp::draw(){
 	ofSetColor(225);
 	string reportString = "volume: ("+ofToString(volumeAudio, 2)+")\npan: ("+ofToString(pan, 2)+")\nsynthesis: ";
 	if( !bNoise ){
-		reportString += "sine wave (" + ofToString(targetFrequency, 2) + " Hz)";
+		reportString += "Fundamental Frequency: " + ofToString(targetFrequency, 2) + " Hz";
 	}else{
 		reportString += "noise";	
 	}
@@ -271,7 +295,7 @@ void ofApp::draw(){
 			//blackKeyLabels = std::string(u_array, u_array + sizeof u_array / sizeof u_array[0]);
 			blackKeyLabels =  "23567";
 		} else {
-			blackKeyLabels = "é\"(-è";
+			blackKeyLabels = 'é"(-è';
 		}
 		
 		int blackKeyOffsets[] = { 1, 3, 6, 8, 10 }; // where black keys are placed
@@ -334,7 +358,9 @@ void ofApp::keyPressed  (int key){
 	if (current_map.find(charKey) != current_map.end()) {
 		pan = 0.5;
 		targetFrequency = keyFreq(key, LaFreq);
-		phaseAdderTarget = (targetFrequency / (float)sampleRate) * glm::two_pi<float>();
+		for (int i = 0; i < 10; ++i) {
+			phaseAdderTarget.push_back((mapHarms[i] * (targetFrequency * (i + 1) )/ (float)sampleRate) * glm::two_pi<float>());
+		}
 		setFlags(key, flags, true);
 	}
 }
@@ -342,7 +368,13 @@ void ofApp::keyPressed  (int key){
 //--------------------------------------------------------------
 void ofApp::keyReleased  (int key){
 	setFlags(key, flags, false);
-	phaseAdderTarget = 0.;
+	phaseAdderTarget[0] = 1;
+	for (int i = 1; i < 10; ++i) {
+
+		phaseAdderTarget[i] = 0;
+
+	}
+	// phaseAdderTarget = 0.;
 }
 
 //--------------------------------------------------------------
@@ -424,8 +456,8 @@ void ofApp::audioOut(ofSoundBuffer & buffer){
 			lAudio[i] = buffer[i * buffer.getNumChannels()] = ofRandom(0, 1) * (0.05 * volumeAudio) * leftScale;
 			rAudio[i] = buffer[i * buffer.getNumChannels() + 1] = ofRandom(0, 1) * (0.05 * volumeAudio) * rightScale;
 		}
-	} else {
-		phaseAdder = phaseAdderTarget; //0.95f * phaseAdder + 0.05f * phaseAdderTarget;
+	} else {		
+		phaseAdder = phaseAdderTarget[0]; //0.95f * phaseAdder + 0.05f * phaseAdderTarget;
 		for (size_t i = 0; i < buffer.getNumFrames(); i++){
 			phase += phaseAdder;
 			float sample = sin(phase);

@@ -11,7 +11,7 @@ int main() {
 	settings.resizable = true;
 	auto mainWindow = ofCreateWindow(settings);
 
-	settings.setSize(250, 150);
+	settings.setSize(250, 400);
 	settings.setPosition(glm::vec2(50, 50));
 	settings.resizable = true;
 	// uncomment next line to share main's OpenGL resources with gui

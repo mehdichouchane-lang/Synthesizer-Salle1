@@ -57,6 +57,7 @@ class ofApp : public ofBaseApp{
 		std::unordered_map<char, Key> qwerty_map;
 		std::unordered_map<char, Key> french_map;
 		std::unordered_map<char, Key> current_map;
+		std::unordered_map<int, float> mapHarms;
 		float widthWhiteKey;
 		float keySpace ;
 		float heightWhiteKey;
@@ -69,6 +70,7 @@ class ofApp : public ofBaseApp{
 		float qwertyButtonEndX;
 		float qwertyButtonEndY;
 		int counterQwerty;
+		vector<float> phaseAdderTarget;
 		vector<float> lAudio;
 		vector <float> rAudio;
 		
@@ -76,12 +78,27 @@ class ofApp : public ofBaseApp{
 		float 	targetFrequency;
 		float 	phase;
 		float 	phaseAdder;
-		float 	phaseAdderTarget;
+		// float 	phaseAdderTarget;
 		ofParameterGroup parameters;
+		ofParameterGroup parametersApp;
+		ofParameterGroup parametersHarms;
 		ofParameter<int> octave;
 		ofParameter<int> volumeAudio;
 		ofParameter<int> LaFreq;
 		// ofParameter<ofColor> color;
+
+		ofParameter<float> harm1;
+		ofParameter<float> harm2;
+		ofParameter<float> harm3;
+		ofParameter<float> harm4;
+		ofParameter<float> harm5;
+		ofParameter<float> harm6;
+		ofParameter<float> harm7;
+		ofParameter<float> harm8;
+		ofParameter<float> harm9;
+		ofParameter<float> harm10;
+
+
 		ofxPanel gui;
 		ofxToggle QwertyToggle;
 		bool qwertyActive = false;
