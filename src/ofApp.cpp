@@ -16,11 +16,11 @@ void ofApp::setup(){
 	soundStream.printDeviceList();
 	widthWhiteKey = 100;
 	keySpace = 3;
-	heightWhiteKey = 250;
+	heightWhiteKey = 220;
 	widthBlackKey = widthWhiteKey / 2;
 	heightBlackKey = heightWhiteKey / 2;
 	xStart = 150;
-	yStart = 600;
+	yStart = 550;
 	qwertyButtonStartX = xStart + 7 * (keySpace + widthWhiteKey);
 	qwertyButtonStartY = yStart;
 	qwertyButtonEndX = qwertyButtonStartX + widthWhiteKey;
@@ -190,7 +190,7 @@ void ofApp::draw(){
 	// draw the right channel:
 	ofPushStyle();
 		ofPushMatrix();
-		ofTranslate(32, 250, 0);
+	ofTranslate(32, offsetY+250, 0);
 			
 		ofSetColor(225);
 		ofDrawBitmapString("Frequency Domain", 4, 18);
@@ -222,7 +222,7 @@ void ofApp::draw(){
 		ofPopMatrix();
 	ofPopStyle();
 	
-		
+		ofTranslate(32, offsetY, 0);
 	ofSetColor(225);
 	string reportString = "volume: ("+ofToString(volumeAudio, 2)+")\npan: ("+ofToString(pan, 2)+")\nsynthesis: ";
 	if( !bNoise ){
@@ -252,10 +252,10 @@ void ofApp::draw(){
 			}		
 			ofFill();
 			float x = xStart + i * (keySpace + widthWhiteKey);
-			ofDrawRectangle(x, yStart + offsetY, widthWhiteKey, heightWhiteKey);
+			ofDrawRectangle(x, yStart, widthWhiteKey, heightWhiteKey);
 			ofSetColor(0);
 			float textX = x + widthWhiteKey/ 2 - 4; // adjust -4 for approx center text horizontally
-			float textY = yStart + offsetY + heightWhiteKey - 15; // slightly above bottom to be visible
+			float textY = yStart + heightWhiteKey - 15; // slightly above bottom to be visible
 			ofDrawBitmapString(std::string(1, whiteKeyLabels[i]), textX, textY);
 		}
 
@@ -283,10 +283,10 @@ void ofApp::draw(){
 			ofFill();
 			// Centered between the white keys
 			float x = xStart + (keyIdx + 1) * widthWhiteKey + keyIdx * keySpace - widthBlackKey / 2;
-			ofDrawRectangle(x, yStart+offsetY, widthBlackKey, heightBlackKey);
+			ofDrawRectangle(x, yStart, widthBlackKey, heightBlackKey);
 			ofSetColor(255);
 			float textX = x + widthBlackKey / 2 - 4;
-			float textY = yStart + offsetY + heightBlackKey - 15;
+			float textY = yStart + heightBlackKey - 15;
 			ofDrawBitmapString(std::string(1, blackKeyLabels[i]), textX, textY);
 		}
 		ofFill();
