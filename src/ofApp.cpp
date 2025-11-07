@@ -19,7 +19,7 @@ void ofApp::setup(){
 	heightWhiteKey = 220;
 	widthBlackKey = widthWhiteKey / 2;
 	heightBlackKey = heightWhiteKey / 2;
-	xStart = 150;
+	xStart = 120;
 	yStart = 550;
 	qwertyButtonStartX = xStart + 7 * (keySpace + widthWhiteKey);
 	qwertyButtonStartY = yStart;
@@ -65,7 +65,9 @@ void ofApp::setup(){
 	current_map = french_map;
 	ofSoundStreamSettings settings;
 	
-		titleFont.load("Welbut.ttf", 48); // font file + size
+		titleFont.load("Welbut.ttf", 38); // font file + size
+	pianistCat.load("pianistCat.jpg");
+		background.load("background.jpg");
 
 
 
@@ -154,29 +156,53 @@ namespace unsigned_types {
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-
+	pianistCat.draw(0, 0, 1000, 300);
+	background.draw(0, 300, 1000, 800); 
 	ofSetColor(225);
 	// ofDrawBitmapString("AUDIO OUTPUT EXAMPLE", 32, 32);
 	// ofDrawBitmapString("press 's' to unpause the audio\npress 'e' to pause the audio", 31, 92);
 	int offsetY = 100;
+	
 	ofSetColor(255, 215, 0); // gold
-	titleFont.drawString("🎵 Synthesizer 3000 🎵", 100, 100);
+	titleFont.drawString("🎵 Synthesizer 3000 🎵", 470, 50);
 	ofNoFill();
+	ofTranslate(0,150, 0);
 	// draw keys 
 	// draw the left channel:
 	ofPushStyle();
 		ofPushMatrix();
 		ofTranslate(32, offsetY+50, 0);
-			
+		ofSetColor(30, 30, 30, 220);
+		ofFill();
+		ofDrawRectangle(0, 0, 900, 200);
+
+		// 2️⃣ Draw borders (optional)
+		ofNoFill();
+		ofSetColor(225);
+		ofSetLineWidth(2);
+		ofDrawRectangle(0, 0, 900, 200);
+
 		ofSetColor(225);
 		ofDrawBitmapString("Temporal Domain", 4, 18);
+		// 3️⃣ Draw waveform *after* the rectangle so it’s visible on top
+		ofSetColor(255, 215, 0);
+		ofSetLineWidth(4);
+		ofNoFill();
+
 		
-		ofSetLineWidth(1);	
+		/*	
+		ofSetLineWidth(1);
+		ofSetColor(30, 30, 30, 90);
+		ofFill();	
 		ofDrawRectangle(0, 0, 900, 200);
+
+		ofSetColor(225);
+		ofDrawBitmapString("Temporal Domain", 4, 18);
 
 		ofSetColor(245, 58, 135);
 		ofSetLineWidth(3);
-					
+				*/
+
 			ofBeginShape();
 		int scaleSound = 1;
 			for (unsigned int i = 0; i < lAudio.size(); i++){
@@ -198,14 +224,24 @@ void ofApp::draw(){
 		ofPushMatrix();
 	ofTranslate(32, offsetY+250, 0);
 			
-		ofSetColor(225);
-		ofDrawBitmapString("Frequency Domain", 4, 18);
 		
-		ofSetLineWidth(1);	
+		
+		ofSetLineWidth(1);
+	ofSetColor(30, 30, 30, 220);
+		ofFill();
 		ofDrawRectangle(0, 0, 900, 200);
 
+		// 2️⃣ Draw borders (optional)
+		ofNoFill();
+		ofSetColor(225);
+		ofSetLineWidth(2);
+		ofDrawRectangle(0, 0, 900, 200);
+
+		ofSetColor(225);
+		ofDrawBitmapString("Frequency Domain", 4, 18);
+
 		ofSetColor(245, 58, 135);
-		ofSetLineWidth(3);
+		ofSetLineWidth(4);
 		
 		// draw the fourier transform
 		int halfSize = fourierSpectrum.size() / 2;
@@ -228,7 +264,17 @@ void ofApp::draw(){
 	ofPopStyle();
 	
 		ofTranslate(32, offsetY, 0);
+	ofSetLineWidth(1);
+	ofSetColor(30, 30, 30, 220);
+	ofFill();
+	ofDrawRectangle(0, 455, 300, 60);
+	ofNoFill();
 	ofSetColor(225);
+	ofSetLineWidth(2);
+	ofDrawRectangle(0, 455, 300, 60);
+
+	ofSetColor(255);
+
 	string reportString = "volume: ("+ofToString(volumeAudio, 2)+")\npan: ("+ofToString(pan, 2)+")\nsynthesis: ";
 	if( !bNoise ){
 		reportString += "sine wave (" + ofToString(targetFrequency, 2) + " Hz)";
@@ -295,6 +341,8 @@ void ofApp::draw(){
 			ofDrawBitmapString(std::string(1, blackKeyLabels[i]), textX, textY);
 		}
 		ofFill();
+
+		
 }
 
 //--------------------------------------------------------------

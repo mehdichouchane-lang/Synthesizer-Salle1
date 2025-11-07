@@ -86,4 +86,7 @@ class ofApp : public ofBaseApp{
 		ofxToggle QwertyToggle;
 		bool qwertyActive = false;
 		void onQwertyToggled(bool & val);
+
+		ofImage pianistCat;
+		ofImage background;
 };
