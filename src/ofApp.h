@@ -24,12 +24,13 @@ class ofApp : public ofBaseApp{
 		void windowResized(int w, int h);
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);
-		
+		void computeFourier(const vector<float> & input);
+		vector<float> fourierSpectrum; 
 		void audioOut(ofSoundBuffer & buffer);
 		float keyFreq(int key, int baseFreq);
 		void setFlags(int key, bool flags[],bool val);
 		ofSoundStream soundStream;
-
+		float scaleFourier;
 		float 	pan;
 		int		sampleRate;
 		bool 	bNoise;
@@ -37,6 +38,7 @@ class ofApp : public ofBaseApp{
 		bool flags[12];
 		bool flagsFreq[5];
 		int baseFreq;
+		ofTrueTypeFont titleFont;
 		enum class Key {
 			C, // C natural
 			CSharp, // C# (all sharps after naturals)

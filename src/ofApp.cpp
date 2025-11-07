@@ -4,7 +4,7 @@
 void ofApp::setup(){
 
 	ofBackground(34, 34, 34);
-	ofTrueTypeFont font;
+	
 	int bufferSize		= 512;
 	sampleRate 			= 44100;
 	phase 				= 0;
@@ -14,13 +14,13 @@ void ofApp::setup(){
 	lAudio.assign(bufferSize, 0.0);
 	rAudio.assign(bufferSize, 0.0);
 	soundStream.printDeviceList();
-	widthWhiteKey = 60;
+	widthWhiteKey = 100;
 	keySpace = 3;
-	heightWhiteKey = 200;
+	heightWhiteKey = 250;
 	widthBlackKey = widthWhiteKey / 2;
 	heightBlackKey = heightWhiteKey / 2;
-	xStart = 33;
-	yStart = 525;
+	xStart = 150;
+	yStart = 600;
 	qwertyButtonStartX = xStart + 7 * (keySpace + widthWhiteKey);
 	qwertyButtonStartY = yStart;
 	qwertyButtonEndX = qwertyButtonStartX + widthWhiteKey;
@@ -33,7 +33,7 @@ void ofApp::setup(){
 		flagsFreq[i] = false;
 	}
 	flagsFreq[0] = true;
-	
+	float scaleFourier = 3.;
 	qwerty_map = {
 		{ 'q', Key::C },
 		{ '2', Key::CSharp },
@@ -50,7 +50,7 @@ void ofApp::setup(){
 	};
 	french_map = {
 		{ 'a', Key::C },
-		{ (char16_t) u'é', Key::CSharp },
+		{ 'é', Key::CSharp },
 		{ 'z', Key::D },
 		{ '"', Key::DSharp },
 		{ 'e', Key::E },
@@ -59,12 +59,15 @@ void ofApp::setup(){
 		{ 't', Key::G },
 		{ '-', Key::GSharp },
 		{ 'y', Key::A },
-		{ (char16_t) u'è', Key::ASharp },
+		{ 'è', Key::ASharp },
 		{ 'u', Key::B }
 	};
-	current_map = qwerty_map;
+	current_map = french_map;
 	ofSoundStreamSettings settings;
 	
+		titleFont.load("Welbut.ttf", 48); // font file + size
+
+
 
 	// if you want to set the device id to be different than the default:
 	//
@@ -119,7 +122,7 @@ void ofApp::setupGui() {
 	parameters.add(LaFreq.set("C4 frequency", 440, 430, 450));
 	// parameters.add(color.set("color",100,ofColor(0,0),255));
 	parameters.add(volumeAudio.set("volume", 2, 0, 30));
-	QwertyToggle.setup("Qwerty", true);
+	QwertyToggle.setup("Qwerty", false);
 	QwertyToggle.addListener(this, &ofApp::onQwertyToggled);
 	gui.setup(parameters);
 	gui.add(&QwertyToggle);
@@ -130,11 +133,11 @@ void ofApp::setupGui() {
 void ofApp::onQwertyToggled(bool & val) {
 	qwertyActive = val;
 	counterQwerty++;
-	if (qwertyActive) {
-		current_map = french_map;
+	if (QwertyToggle) {
+		current_map =  qwerty_map;
 		ofLogNotice() << "Qwerty mode ON";
 	} else {
-		current_map = qwerty_map;
+		current_map = french_map;
 		ofLogNotice() << "Qwerty mode OFF";
 	}
 }
@@ -155,13 +158,15 @@ void ofApp::draw(){
 	ofSetColor(225);
 	// ofDrawBitmapString("AUDIO OUTPUT EXAMPLE", 32, 32);
 	// ofDrawBitmapString("press 's' to unpause the audio\npress 'e' to pause the audio", 31, 92);
-	
+	int offsetY = 100;
+	ofSetColor(255, 215, 0); // gold
+	titleFont.drawString("🎵 Synthesizer 3000 🎵", 100, 100);
 	ofNoFill();
 	// draw keys 
 	// draw the left channel:
 	ofPushStyle();
 		ofPushMatrix();
-		ofTranslate(32, 50, 0);
+		ofTranslate(32, offsetY+50, 0);
 			
 		ofSetColor(225);
 		ofDrawBitmapString("Temporal Domain", 4, 18);
@@ -181,7 +186,7 @@ void ofApp::draw(){
 			
 		ofPopMatrix();
 	ofPopStyle();
-
+		
 	// draw the right channel:
 	ofPushStyle();
 		ofPushMatrix();
@@ -195,7 +200,18 @@ void ofApp::draw(){
 
 		ofSetColor(245, 58, 135);
 		ofSetLineWidth(3);
-					
+		int shiftX = 0;
+		// draw the fourier transform
+		if (!fourierSpectrum.empty()) {
+			ofSetColor(0, 255, 0);
+			ofNoFill();
+			ofBeginShape();
+			for (int i = 0; i < fourierSpectrum.size() / 2; i++) {
+				float x = ofMap(i, 0, fourierSpectrum.size() / 2, 0, 900 -shiftX, true);
+				ofVertex(x + shiftX, (140 - fourierSpectrum[i] * 5.0f));
+			}
+			ofEndShape(false);
+		}
 			// ofBeginShape();
 			// for (unsigned int i = 0; i < rAudio.size(); i++){
 			// 	float x =  ofMap(i, 0, rAudio.size(), 0, 900, true);
@@ -220,10 +236,10 @@ void ofApp::draw(){
 	//ofTrueTypeFont font;
 	//font.load("verdana.ttf", 24); // 24 is the font size
 	std::string whiteKeyLabels;
-	if (counterQwerty % 2) {
-		whiteKeyLabels = "azertyu";
-	} else {
+	if (QwertyToggle) {
 		whiteKeyLabels = "qwertyu";
+	} else {
+		whiteKeyLabels = "azertyu";
 	}
 	int whiteKeyLocs[] = { 0, 2, 4, 5, 7, 9, 11 };
 	for (int i = 0; i < 7; i++) {	 
@@ -236,20 +252,21 @@ void ofApp::draw(){
 			}		
 			ofFill();
 			float x = xStart + i * (keySpace + widthWhiteKey);
-			ofDrawRectangle(x, yStart, widthWhiteKey, heightWhiteKey);
+			ofDrawRectangle(x, yStart + offsetY, widthWhiteKey, heightWhiteKey);
 			ofSetColor(0);
 			float textX = x + widthWhiteKey/ 2 - 4; // adjust -4 for approx center text horizontally
-			float textY = yStart + heightWhiteKey - 15; // slightly above bottom to be visible
+			float textY = yStart + offsetY + heightWhiteKey - 15; // slightly above bottom to be visible
 			ofDrawBitmapString(std::string(1, whiteKeyLabels[i]), textX, textY);
 		}
 
 	// Draw the black keys
 		std::string blackKeyLabels;
-		if (counterQwerty % 2) {
-			unsigned char u_array[5] = { (char16_t) u'\xE8', '"', '(', '-', (char16_t) u'è' };
-			blackKeyLabels = std::string(u_array, u_array + sizeof u_array / sizeof u_array[0]);
+		if (QwertyToggle) {
+			//unsigned char u_array[5] = { (char16_t) u'\xE8', '"', '(', '-', (char16_t) u'è' };
+			//blackKeyLabels = std::string(u_array, u_array + sizeof u_array / sizeof u_array[0]);
+			blackKeyLabels =  "23567";
 		} else {
-			blackKeyLabels = "23567";
+			blackKeyLabels = "é\"(-è";
 		}
 		
 		int blackKeyOffsets[] = { 1, 3, 6, 8, 10 }; // where black keys are placed
@@ -266,10 +283,10 @@ void ofApp::draw(){
 			ofFill();
 			// Centered between the white keys
 			float x = xStart + (keyIdx + 1) * widthWhiteKey + keyIdx * keySpace - widthBlackKey / 2;
-			ofDrawRectangle(x, yStart, widthBlackKey, heightBlackKey);
+			ofDrawRectangle(x, yStart+offsetY, widthBlackKey, heightBlackKey);
 			ofSetColor(255);
 			float textX = x + widthBlackKey / 2 - 4;
-			float textY = yStart + heightBlackKey - 15;
+			float textY = yStart + offsetY + heightBlackKey - 15;
 			ofDrawBitmapString(std::string(1, blackKeyLabels[i]), textX, textY);
 		}
 		ofFill();
@@ -357,7 +374,32 @@ void ofApp::mouseExited(int x, int y){
 void ofApp::windowResized(int w, int h){
 
 }
+std::vector<float> fourierSpectrum;
 
+void ofApp::computeFourier(const std::vector<float> & signalwave) {
+	int N = signalwave.size(); // number of samples
+
+	std::vector<float> F1(N, 0.0f);
+	std::vector<float> F2(N, 0.0f);
+	std::vector<float> F(N, 0.0f); // Fourier magnitude
+
+	for (int k = 0; k < N; k++) {
+		F1[k] = 0.0f;
+		F2[k] = 0.0f;
+
+		for (int n = 0; n < N; n++) {
+			float phi = (2.0f * PI * k * n) / N;
+			F1[k] += signalwave[n] * cos(phi);
+			F2[k] -= signalwave[n] * sin(phi);
+		}
+
+		// Fourier magnitude calculation
+		F[k] = sqrt(F1[k] * F1[k] + F2[k] * F2[k]);
+	}
+
+	//Fourier magnitude result for all frequencies
+	fourierSpectrum = F;
+}
 //--------------------------------------------------------------
 void ofApp::audioOut(ofSoundBuffer & buffer){
 	//pan = 0.5f;
@@ -386,7 +428,8 @@ void ofApp::audioOut(ofSoundBuffer & buffer){
 			rAudio[i] = buffer[i * buffer.getNumChannels() + 1] = sample * (0.05 * volumeAudio) * rightScale;
 		}
 	}
-
+	// Compute Fourier Transform for the sample
+	computeFourier(lAudio);
 }
 
 //--------------------------------------------------------------
